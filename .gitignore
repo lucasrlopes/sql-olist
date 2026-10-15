@@ -1,0 +1,11 @@
+# Dados brutos e banco local (baixar do Kaggle, ver README)
+data/
+*.db
+*.sqlite
+*.csv
+
+# Arquivos do sistema e de editores
+.DS_Store
+Thumbs.db
+.vscode/
+.ipynb_checkpoints/
