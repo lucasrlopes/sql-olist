@@ -12,7 +12,14 @@ Análise exploratória em SQL de cerca de 100 mil pedidos feitos entre 2016 e 20
 
 ## Principais achados
 
-_Em construção._
+**Definições:** receita = soma do valor dos produtos (`price`, sem frete), considerando só pedidos entregues (`delivered`, 97% do total).
+
+- **Tamanho:** 96,5 mil pedidos entregues entre set/2016 e ago/2018, somando R$ 13,2 milhões em receita.
+- **Quase ninguém volta a comprar:** foram 93,4 mil clientes únicos para 96,5 mil pedidos, ou 1,03 pedido por cliente.
+- **Crescimento e Black Friday:** a receita mensal saiu de R$ 112 mil (jan/2017) para algo entre R$ 826 mil e R$ 978 mil em 2018. O pico foi nov/2017 (R$ 988 mil), mês da Black Friday. Os dados de 2016 são residuais.
+- **Concentração no Sudeste:** SP responde por 38% da receita; SP, RJ e MG juntos, por 63%.
+- **Ticket médio de R$ 137,04 por pedido.** A média por item é R$ 119,98: calcular o ticket com `AVG(price)` o subestimaria em 12%. SP tem o menor ticket (R$ 125) e os estados do Norte e do Nordeste, os maiores (PB, R$ 218). Hipótese: o frete mais caro leva a compras menos frequentes e de valor maior.
+- **Receita x volume:** relógios e presentes faturam mais (R$ 1,17 milhão) que cama, mesa e banho (R$ 1,02 milhão), com 40% menos pedidos.
 
 ## Dados
 
