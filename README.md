@@ -21,6 +21,8 @@ Análise exploratória em SQL de cerca de 100 mil pedidos feitos entre 2016 e 20
 - **Ticket médio de R$ 137,04 por pedido.** A média por item é R$ 119,98: calcular o ticket com `AVG(price)` o subestimaria em 12%. SP tem o menor ticket (R$ 125) e os estados do Norte e do Nordeste, os maiores (PB, R$ 218). Hipótese: o frete mais caro leva a compras menos frequentes e de valor maior.
 - **Receita x volume:** relógios e presentes faturam mais (R$ 1,17 milhão) que cama, mesa e banho (R$ 1,02 milhão), com 40% menos pedidos.
 - **Crescimento desacelerando:** só de jan a ago/2018 a Olist faturou R$ 7,2 milhões, mais que em todo o período anterior (R$ 6,0 milhões até dez/2017). Mas a alta sobre o mesmo mês de 2017 (YoY) caiu de +253% em fevereiro para +51% em agosto, e de um mês para o outro (MoM) a receita de 2018 oscila entre -12% e +15%: o negócio parou de acelerar e estabilizou num patamar de R$ 830 mil a R$ 980 mil por mês. Variações de 2016 e jan/2017 não são comparáveis, porque a base é quase zero.
+- **Recompra baixa e estável:** só 2,2% dos clientes voltaram a comprar. A conta usa dias diferentes de compra: a Olist divide um carrinho em vários pedidos, e contar pedidos inflaria a taxa para 3,0%. Quem volta, volta rápido: 55% em até 90 dias. Separando os clientes pelo mês da primeira compra (cohort), a recompra em até 90 dias fica entre 0,8% e 1,8% e não melhora com o tempo. O cohort da Black Friday (nov/2017), o maior de todos, recompra 1,33%, na média. O crescimento da receita veio de clientes novos, não de fidelização.
+
 
 
 ## Dados
