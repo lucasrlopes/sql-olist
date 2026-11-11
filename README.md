@@ -2,6 +2,12 @@
 
 Análise exploratória em SQL de cerca de 100 mil pedidos feitos entre 2016 e 2018 no marketplace brasileiro Olist. O foco são vendas, clientes, entregas e avaliações.
 
+## Resumo
+
+- **Atraso derruba a nota:** pedidos entregues no prazo têm nota média 4,29. Os atrasados, 2,27, e 62% deles recebem nota 1 ou 2.
+- **Quase ninguém volta:** só 2,2% dos clientes compraram de novo. O crescimento de 2017 para 2018 (2,4 vezes nos mesmos meses) veio de clientes novos.
+- **A receita está nos inativos:** clientes de alto valor que não compram há mais de 6 meses são 22,7% da base e 42,9% da receita.
+
 ## Perguntas de negócio
 
 1. Como a receita e o número de pedidos evoluíram mês a mês?
@@ -25,10 +31,18 @@ Análise exploratória em SQL de cerca de 100 mil pedidos feitos entre 2016 e 20
 - **Índices, medidos antes e depois** (uma medição por cenário; os tempos variam entre execuções): em buscas pontuais, como o histórico de um cliente, o tempo caiu de cerca de 1 s para menos de 0,01 s. Já nas consultas que somam quase a tabela inteira, índices simples pioraram o tempo (receita por estado foi de 1,02 s para 1,59 s). O SQLite já montava sozinho um índice temporário, e o índice simples obrigava a voltar à tabela a cada linha. Índices cobrindo, que já trazem as colunas usadas, resolveram: receita por estado em 0,85 s e cohort em 1,22 s (contra 2,31 s sem índice). O custo foi de cerca de 30 MB a mais no banco. Veja `queries/09_indices_performance.sql`.
 - **Comparação justa entre anos:** a tabela de receita com anos nas linhas e meses nas colunas (pivot) mostra que 2018 só tem dados até agosto. Nos mesmos meses, de janeiro a agosto, a receita foi de R$ 3,0 milhões em 2017 para R$ 7,2 milhões em 2018, ou 2,4 vezes mais. Veja `queries/10_pivot_receita.sql`.
 - **Segmentação RFM (recência, frequência e valor):** como 98% dos clientes compraram uma vez só, a frequência separa pouco, e quem define os grupos é a recência e o valor. O maior grupo em receita é o de **alto valor inativo**: 22,7% dos clientes, que gastaram a partir de R$ 110 e não compram há mais de 6 meses, somam 42,9% da receita. Os campeões (2 compras ou mais, a última nos últimos 6 meses) são só 1,1% dos clientes e 2,2% da receita. Os novos de alto valor (uma compra nos últimos 6 meses, a partir de R$ 110) somam outros 29,6% da receita. São eles que uma ação de retenção precisa trabalhar agora, antes que virem o próximo grupo de alto valor inativo. Recência e valor recebem nota por quintil (`NTILE(5)`), e a frequência usa faixas fixas, porque um quintil cortaria ao meio o bloco de clientes com uma compra só. Veja `queries/11_rfm.sql`.
+- **Cartão de crédito e parcelamento:** o cartão aparece em 77% dos pedidos e responde por 78,5% do valor pago. O boleto vem em seguida, com 20% dos pedidos. Cerca de 2,2 mil pedidos combinam duas formas (voucher e cartão, por exemplo), por isso os percentuais de pedidos somam um pouco mais de 100%. No cartão, dois em cada três pagamentos são parcelados (média de 3,5 parcelas), e o número de parcelas cresce com o valor: R$ 96 em média à vista e R$ 332 em 7 vezes ou mais. Veja `queries/12_pagamentos.sql`.
+- **Atraso na entrega derruba a nota:** 6,7% dos pedidos chegaram depois da data prometida. Nesses, a nota média cai de 4,29 para 2,27, e 62% dão nota 1 ou 2, contra 9% dos pedidos entregues no prazo. A queda começa logo: com 1 a 3 dias de atraso, a nota média já é 3,29. A partir de 8 dias, 8 em cada 10 clientes dão nota 1 ou 2. Hipótese: prometer prazos que a logística consegue cumprir reduziria as notas baixas. Como alguns pedidos têm duas avaliações, a nota é a média por pedido, para não contar o mesmo pedido duas vezes. Veja `queries/13_atraso_nota.sql`.
 
+## Técnicas de SQL usadas
 
-
-
+- `JOIN` entre 5 tabelas e agregações com `GROUP BY`
+- CTEs (`WITH`) para calcular em etapas, como o ticket por pedido antes da média
+- Window functions: `SUM() OVER` (acumulado), `AVG() OVER` com `ROWS BETWEEN` (média móvel), `LAG` (MoM e YoY), `NTILE` (quintis do RFM)
+- Análise de cohort e taxa de recompra
+- Pivot com `SUM(CASE WHEN ...)`, já que o SQLite não tem `PIVOT`
+- Índices simples e índices cobrindo, com tempo medido antes e depois
+- Views (`CREATE VIEW`) para reaproveitar a segmentação RFM
 
 ## Dados
 
@@ -37,8 +51,9 @@ Análise exploratória em SQL de cerca de 100 mil pedidos feitos entre 2016 e 20
 Os arquivos não ficam neste repositório. Para reproduzir:
 
 1. Baixe o dataset no link acima e descompacte os 9 CSVs em `data/`.
-2. No DBeaver, crie uma conexão SQLite apontando para `data/olist.db` e importe os CSVs (uma tabela por arquivo).
-3. Rode as consultas da pasta `queries/` na ordem numérica.
+2. No DBeaver, crie uma conexão SQLite apontando para `data/olist.db` e importe os CSVs (uma tabela por arquivo), menos o de avaliações.
+3. Importe as avaliações com `python scripts/importar_reviews.py`. O DBeaver falha nesse arquivo porque alguns comentários têm quebra de linha.
+4. Rode as consultas da pasta `queries/` na ordem numérica.
 
 ## Estrutura
 
@@ -46,9 +61,10 @@ Os arquivos não ficam neste repositório. Para reproduzir:
 sql-olist/
 ├── data/       # CSVs e banco SQLite (fora do Git)
 ├── queries/    # consultas SQL numeradas
+├── scripts/    # importação das avaliações (Python)
 └── README.md
 ```
 
 ## Ferramentas
 
-SQL (SQLite) · DBeaver · Git/GitHub
+SQL (SQLite) · DBeaver · Python (pandas) · Git/GitHub
